@@ -34,7 +34,7 @@ print("the Dataset is contain %d labels" %(len(dataloader)))
 
 # load FID val dataset
 
-data_val = FID_val.FidDataset(opt)
+data_val = FID_val.FidDataset()
 # data_val.initialize(opt)
 fid_test = fid_jittor(opt, data_val)
 
