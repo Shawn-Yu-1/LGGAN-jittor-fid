@@ -48,17 +48,15 @@ class fid_jittor():
         pool, logits, labels = [], [], []
         self.model_inc.eval()
         netG.eval()
-        # if not self.opt.no_EMA:
-        #     netEMA.eval()
         with jt.no_grad():
             for i, data_i in enumerate(self.val_dataloader):
-                label = util.preprocess_input(self.opt, data_i)
+                label = util.preprocess_input(data_i)
                 # if self.opt.no_EMA:
                 generated = netG(label)[0]
                 # else:
                 #     generated = netEMA(label)
                 generated = (generated + 1) / 2
-                pool_val = self.model_inc(generated.float())[0][:, :, 0, 0]
+                pool_val = self.model_inc(generated.float32())[0][:, :, 0, 0]
                 pool += [pool_val]
             pool = jt.concat(pool, 0)
             mu, sigma = jt.mean(pool, 0), jittor_cov(pool, rowvar=False)
