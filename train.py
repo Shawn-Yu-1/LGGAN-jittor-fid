@@ -7,8 +7,10 @@ import sys
 from collections import OrderedDict
 from options.train_options import TrainOptions
 import data
+from data import FID_val
 from util.iter_counter import IterationCounter
 from util.visualizer import Visualizer
+from util.fid_scores import fid_jittor
 from trainers.pix2pix_trainer import Pix2PixTrainer
 import jittor as jt
 
@@ -29,6 +31,12 @@ dataloader = dataset().set_attrs(batch_size=opt.batchSize,
         drop_last=opt.isTrain)
 dataloader.initialize(opt)
 print("the Dataset is contain %d labels" %(len(dataloader)))
+
+# load FID val dataset
+
+data_val = FID_val.FidDataset(opt)
+# data_val.initialize(opt)
+fid_test = fid_jittor(opt, data_val)
 
 # create trainer for our model
 trainer = Pix2PixTrainer(opt)
@@ -70,19 +78,23 @@ for epoch in iter_counter.training_epochs():
             visualizer.display_current_results(visuals, epoch, iter_counter.total_steps_so_far)
 
         if iter_counter.needs_saving():
-            print('saving the latest model (epoch %d, total_steps %d)' %
-                  (epoch, iter_counter.total_steps_so_far))
-            trainer.save('latest')
-            iter_counter.record_current_iter()
+            is_big = fid_test.update(trainer.pix2pix_model.netG, iter_counter.total_steps_so_far)
+            if is_big:
+                print('saving the latest model (epoch %d, total_steps %d)' %
+                    (epoch, iter_counter.total_steps_so_far))
+                trainer.save('latest')
+                iter_counter.record_current_iter()
 
     trainer.update_learning_rate(epoch)
     iter_counter.record_epoch_end()
 
     if epoch % opt.save_epoch_freq == 0 or \
        epoch == iter_counter.total_epochs:
-        print('saving the model at the end of epoch %d, iters %d' %
-              (epoch, iter_counter.total_steps_so_far))
-        trainer.save('latest')
+        is_big = fid_test.update(trainer.pix2pix_model.netG, iter_counter.total_steps_so_far)
+        if is_big:
+            print('saving the model at the end of epoch %d, iters %d' %
+                (epoch, iter_counter.total_steps_so_far))
+            trainer.save('latest')
         trainer.save(epoch)
 
 print('Training was successfully finished.')
