@@ -17,6 +17,7 @@ class FidDataset(Dataset):
     """
     def __init__(self) -> None:
         super(FidDataset, self).__init__()
+        self.labels, self.imgs = self.get_paths()
         # self.opt = self.modify_commandline_options()
 
     # @staticmethod
@@ -33,7 +34,6 @@ class FidDataset(Dataset):
     #     parser.set_defaults(display_winsize=256)
     #     parser.set_defaults(label_nc=29)
     #     parser.set_defaults(contain_dontcare_label=False)
-        
     #     parser.add_argument('--label_dir_val', type=str, default="../train/labels",
     #                         help='path to the directory that contains label images')
     #     parser.add_argument('--image_dir_val', type=str, default='../train/imgs',
@@ -58,13 +58,16 @@ class FidDataset(Dataset):
         return label_paths, image_paths
 
     def __getitem__(self, index):
-        label_paths, img_paths = self.get_paths()
-        labels = Image.open(label_paths)
-        imgs = Image.open(img_paths)
+        label_paths, img_paths = self.labels, self.imgs
+        labels = Image.open(label_paths[index])
+        imgs = Image.open(img_paths[index])
         labels = TF.resize(labels, size=(192,256), interpolation=Image.NEAREST)
         labels = TF.to_tensor(labels)
         imgs = TF.resize(imgs, size=(192,256), interpolation=Image.BICUBIC)
         imgs = TF.to_tensor(imgs)
         return {'label': labels,'image': imgs}
+
+    def __len__(self):
+        return len(self.labels)
 
         
