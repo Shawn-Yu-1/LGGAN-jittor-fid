@@ -34,7 +34,7 @@ print("the Dataset is contain %d labels" %(len(dataloader)))
 
 # load FID val dataset
 
-data_val = FID_val.FidDataset()
+data_val = FID_val.FidDataset().set_attrs(batch_size=opt.batchSize, drop_last=False)
 # data_val.initialize(opt)
 fid_test = fid_jittor(opt, data_val)
 
@@ -78,8 +78,8 @@ for epoch in iter_counter.training_epochs():
             visualizer.display_current_results(visuals, epoch, iter_counter.total_steps_so_far)
 
         if iter_counter.needs_saving():
-            is_big = fid_test.update(trainer.pix2pix_model.netG, iter_counter.total_steps_so_far)
-            if is_big:
+            is_better = fid_test.update(trainer.pix2pix_model, iter_counter.total_steps_so_far)
+            if is_better:
                 print('saving the latest model (epoch %d, total_steps %d)' %
                     (epoch, iter_counter.total_steps_so_far))
                 trainer.save('latest')
@@ -90,8 +90,8 @@ for epoch in iter_counter.training_epochs():
 
     if epoch % opt.save_epoch_freq == 0 or \
        epoch == iter_counter.total_epochs:
-        is_big = fid_test.update(trainer.pix2pix_model.netG, iter_counter.total_steps_so_far)
-        if is_big:
+        is_better = fid_test.update(trainer.pix2pix_model, iter_counter.total_steps_so_far)
+        if is_better:
             print('saving the model at the end of epoch %d, iters %d' %
                 (epoch, iter_counter.total_steps_so_far))
             trainer.save('latest')
