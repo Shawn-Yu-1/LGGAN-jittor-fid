@@ -198,7 +198,7 @@ class Pix2PixModel(jt.nn.Module):
             # print(torch.sum(index))
             # print(torch.sum(self.criterionCE(feature_score, target) * index)/torch.sum(index))
             ce_weight  = jt.float32([1, 1, 1, 1, 2, 5, 1, 1, 1, 1, 1, 5, 1, 1, 10, 5, 2, 2, 5, 5, 1, 5, 5, 5, 5, 5, 5, 5, 1])
-            G_losses['class'] = jt.sum(self.criterionCE(feature_score, target, reduction='none') * index) / jt.sum(index) * self.opt.lambda_class
+            G_losses['class'] = jt.sum(self.criterionCE(feature_score, target, ce_weight, reduction='none') * index) / jt.sum(index) * self.opt.lambda_class
         # print(self.criterionCE(feature_score, target).size())
 
         # TO DO: local pixel loss
