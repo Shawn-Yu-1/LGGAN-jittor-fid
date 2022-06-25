@@ -32,9 +32,9 @@ class TrainOptions(BaseOptions):
         # for discriminators
         parser.add_argument('--ndf', type=int, default=64, help='# of discrim filters in first conv layer')
         parser.add_argument('--lambda_feat', type=float, default=10.0, help='weight for feature matching loss')
-        parser.add_argument('--lambda_vgg', type=float, default=10.0, help='weight for vgg loss')
+        parser.add_argument('--lambda_vgg', type=float, default=5.0, help='weight for vgg loss')
         parser.add_argument('--lambda_l1', type=float, default=1.0, help='weight for pixel loss')
-        parser.add_argument('--lambda_class', type=float, default=1.0, help='weight for classification loss')
+        parser.add_argument('--lambda_class', type=float, default=5.0, help='weight for classification loss')
         parser.add_argument('--no_l1_loss', action='store_true', help='if specified, do *not* use pixel loss')
         parser.add_argument('--no_l1_local_loss', action='store_true', help='if specified, do *not* use local pixel loss')
         parser.add_argument('--no_class_loss', action='store_true', help='if specified, do *not* use classification loss')
